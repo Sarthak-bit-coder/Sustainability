@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2 class="mb-4">Available Items</h2>
+
+<form method="GET" action="/" class="mb-4">
+    <div class="input-group">
+        <input type="text" class="form-control" name="area" placeholder="Enter your area..." value="{{ area or '' }}">
+        <button class="btn btn-success">Search</button>
+    </div>
+</form>
+
+<!-- Top Eco Achievers Section -->
+<h3 class="mb-3">Top Eco Achievers</h3>
+<div class="row mb-4">
+    {% for u in top_users %}
+    <div class="col-md-3">
+        <div class="card p-2 shadow-sm text-center" style="background-color:#198754; color:white;">
+            <img src="{{ u['avatar'] or url_for('static', filename='default-avatar.png') }}" class="rounded-circle mb-2" width="60">
+            <h6>{{ u['username'] }}</h6>
+            <p>{{ u['carbon_score'] }} kg CO₂ saved</p>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No achievers yet. Start posting or claiming items to be featured here!</p>
+    {% endfor %}
+</div>
+
+<div class="row">
+    {% if items|length == 0 %}
+        <p class="text-warning">No items found in this area.</p>
+    {% endif %}
+    {% for item in items %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            {% if item[5] %}
+            <img src="{{ item[5] }}" class="card-img-top" alt="Item Image" style="border-top-left-radius:12px; border-top-right-radius:12px;">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ item[1] }}</h5>
+                <p class="card-text">{{ item[2] }}</p>
+                <p class="card-text"><strong>Location:</strong> {{ item[4] or 'Unknown' }}</p>
+                <p class="card-text"><strong>Owner:</strong> {{ item[8] or 'Unknown' }}</p>
+                <p class="card-text text-success"><strong>Estimated Carbon Saved:</strong> {{ calculate_carbon(item[3], 'claim') }} kg CO₂</p>
+                <div class="mt-auto">
+                    {% if item[6] == 0 %}
+                        {% if session.get('username') != item[8] %}
+                            <a href="/claim/{{ item[0] }}" class="btn btn-success w-100">Claim Item</a>
+                        {% endif %}
+                        {% if session.get('username') == item[8] %}
+                            <a href="/delete/{{ item[0] }}" class="btn btn-danger w-100 mt-2">Delete</a>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-warning mb-2"><strong>Claimed by:</strong> {{ item[9] or 'Unknown' }}</p>
+                        <div class="d-flex gap-2">
+                            {% if session.get('username') in [item[8], item[9]] %}
+                                <a href="/messages/{{ item[0] }}" class="btn btn-info w-50">Message</a>
+                            {% endif %}
+                            {% if session.get('username') == item[8] %}
+                                <a href="/delete/{{ item[0] }}" class="btn btn-danger w-50">Delete</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3 class="mb-3">Chat about "{{ item['title'] }}"</h3>
+
+<div id="chat-box" class="p-3 mb-3" style="max-height:400px; overflow-y:auto; border-radius:10px; background:#e9ecef;">
+    {% for msg in messages %}
+        <div class="chat-message {% if msg['sender'] == username %}sent{% else %}received{% endif %}">
+            <strong>{{ msg['sender'] }}</strong>: {{ msg['message'] }}
+        </div>
+    {% endfor %}
+</div>
+
+<form id="chat-form" class="d-flex">
+    <textarea id="message-input" class="form-control me-2" placeholder="Type a message..." rows="1" required></textarea>
+    <button type="submit" class="btn btn-success">Send</button>
+</form>
+
+<a href="/" class="btn btn-secondary mt-3">Back to Home</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const socket = io();
+const room = "{{ item['id'] }}";
+const username = "{{ username }}";
+
+socket.emit('join', {room: room});
+const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('chat-form');
+const input = document.getElementById('message-input');
+
+function addMessage(sender, message){
+    const div = document.createElement('div');
+    div.className = 'chat-message ' + (sender===username?'sent':'received');
+    div.innerHTML = `<strong>${sender}</strong>: ${message}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+form.addEventListener('submit', e=>{
+    e.preventDefault();
+    const message = input.value.trim();
+    if(!message) return;
+    socket.emit('send_message', {room: room, sender: username, message});
+    input.value = '';
+});
+
+socket.on('receive_message', data=>{
+    addMessage(data.sender, data.message);
+});
+</script>
+
+<style>
+.chat-message { padding:8px 12px; margin-bottom:6px; border-radius:20px; max-width:75%; word-wrap:break-word; }
+.sent { background-color:#198754; color:white; margin-left:auto; }
+.received { background-color:#f1f1f1; color:#333; margin-right:auto; }
+#chat-box::-webkit-scrollbar { width:6px; }
+#chat-box::-webkit-scrollbar-thumb { background-color:#bbb; border-radius:3px; }
+</style>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Post an Item</h2>
+
+<form method="POST" enctype="multipart/form-data" class="mt-3">
+    <label>Title</label>
+    <input type="text" name="title" class="form-control" required>
+
+    <label class="mt-2">Description</label>
+    <textarea name="description" class="form-control" required></textarea>
+
+    <label class="mt-2">Category</label>
+    <select name="category" class="form-control" id="category-select" required>
+        {% for cat in categories %}
+        <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+    </select>
+
+    <label class="mt-2">Location</label>
+    <input type="text" name="location" class="form-control" required>
+
+    <label class="mt-2">Image</label>
+    <input type="file" name="image" class="form-control">
+
+    <label class="mt-2">Estimated Carbon Saved (kg CO2)</label>
+    <input type="number" name="carbon_saved" class="form-control" id="carbon-input" step="0.1" readonly>
+
+    <button class="btn btn-success mt-3">Post</button>
+</form>
+
+<script>
+const categoryCarbon = {
+    "Electronics": 10,
+    "Clothes": 2,
+    "Books": 1,
+    "Furniture": 15,
+    "Other": 3
+};
+
+const categorySelect = document.getElementById('category-select');
+const carbonInput = document.getElementById('carbon-input');
+
+function updateCarbon() {
+    const category = categorySelect.value;
+    carbonInput.value = categoryCarbon[category] || 0;
+}
+
+categorySelect.addEventListener('change', updateCarbon);
+updateCarbon(); // Initialize on page load
+</script>
+{% endblock %}

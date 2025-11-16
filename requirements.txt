@@ -1,0 +1,5 @@
+Flask>=2.2
+Flask-SocketIO>=5.3
+python-socketio>=5.7
+eventlet>=0.33.0
+Werkzeug>=2.2

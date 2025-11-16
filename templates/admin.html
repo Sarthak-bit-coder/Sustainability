@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Admin Panel</h2>
+
+<h4>All items</h4>
+<table class="table">
+  <thead><tr><th>ID</th><th>Title</th><th>Giver</th><th>Claimer</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for item in items %}
+      <tr>
+        <td>{{ item['id'] }}</td>
+        <td>{{ item['title'] }}</td>
+        <td>{{ item['giver'] }}</td>
+        <td>{{ item['claimer'] or '' }}</td>
+        <td>
+          <a class="btn btn-sm btn-danger" href="{{ url_for('admin_delete_item', item_id=item['id']) }}">Delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Users</h4>
+<table class="table">
+  <thead><tr><th>Username</th><th>Admin</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{ u['username'] }}</td>
+        <td>{{ 'Yes' if u['is_admin'] else 'No' }}</td>
+        <td>
+          {% if not u['is_admin'] %}
+            <a class="btn btn-sm btn-primary" href="{{ url_for('admin_promote', username=u['username']) }}">Promote</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
